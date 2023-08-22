@@ -54,17 +54,17 @@ class Yolov1(nn.Module):
         
         for x in architecture:
             if type(x) == tuple:
-                layers += [CNNBlock(in_channels, x[1], x[0], x[2], x[3])]
+                layers += [CNNBlock(in_channels, out_channels = x[1], kernel_size = x[0], stride = x[2], padding = x[3])]
                 in_channels = x[1]
             elif type(x) == str:
-                layers += [nn.MaxPool2d((2, 2))]
+                layers += [nn.MaxPool2d(kernel_size = 2, stride = 2)]
             elif type(x) == list:
                 conv1 = x[0]
                 conv2 = x[1]
                 rep = x[2]
                 for _ in range(rep):
-                    layers += [CNNBlock(in_channels, conv1[1], conv1[0], conv1[2], conv1[3])]
-                    layers += [CNNBlock(conv1[1], conv2[1], conv2[0], conv2[2], conv2[3])]
+                    layers += [CNNBlock(in_channels, out_channels = conv1[1], kernel_size = conv1[0], stride = conv1[2], padding = conv1[3])]
+                    layers += [CNNBlock(conv1[1], out_channels = conv2[1], kernel_size = conv2[0], stride = conv2[2], padding = conv2[3])]
                     in_channels = conv2[1]
 
         return nn.Sequential(*layers)
@@ -73,7 +73,7 @@ class Yolov1(nn.Module):
         S, B, C = split_size, num_boxes, num_classes
         return nn.Sequential(
             nn.Flatten(), 
-            nn.Linear(1024 * S * S, 496), # original paper = 4096
+            nn.Linear(S * S * 1024, 496), # original paper = 4096
             nn.Dropout(0.1), 
             nn.LeakyReLU(0.1), 
             nn.Linear(496, S * S * (C + B * 5)),
