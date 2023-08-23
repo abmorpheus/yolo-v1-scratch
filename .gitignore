@@ -1,3 +1,4 @@
 content/
 yolo v1/__pycache__
 yolo v1/data
+*.tar
